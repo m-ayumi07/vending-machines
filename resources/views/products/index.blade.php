@@ -1,60 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>商品一覧</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>{{ __('Products') }}</div>
+                        <div>
+                            <a href="{{ route('products.create') }}" class="btn btn-primary">{{ __('Create New Product') }}</a>
+                        </div>
+                    </div>
+                </div>
 
-        <form action="{{ route('products.index') }}" method="get">
-            <div class="form-group">
-                <label for="search">商品名</label>
-                <input type="text" class="form-control" id="search" name="search" value="{{ $search }}">
+                <div class="card-body">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>@sortablelink('id', __('ID'))</th>
+                                <th>@sortablelink('product_name', __('Product Name'))</th>
+                                <th>@sortablelink('price', __('Price'))</th>
+                                <th>@sortablelink('company.company_name', __('Company'))</th>
+                                <th>{{ __('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($products as $product)
+                            <tr>
+                                <td>{{ $product->id }}</td>
+                                <td>{{ $product->product_name }}</td>
+                                <td>{{ $product->price }}</td>
+                                <td>{{ $product->company->company_name }}</td>
+                                <td>
+                                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-primary">
+                                        {{ __('View') }}
+                                    </a>
+                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-primary">
+                                        {{ __('Edit') }}
+                                    </a>
+                                    <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('{{ __('Are you sure you want to delete this product?') }}')">{{ __('Delete') }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center">{{ __('No products found.') }}</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <div class="mt-3 d-flex justify-content-center">
+                        {{ $products->links() }}
+                    </div>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="manufacturer">メーカー</label>
-                <select class="form-control" id="manufacturer" name="manufacturer">
-                    <option value="">選択してください</option>
-                    @foreach ($manufacturers as $manufacturer)
-                        <option value="{{ $manufacturer->id }}" @if ($manufacturer->id == $selectedManufacturer) selected @endif>{{ $manufacturer->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">検索</button>
-        </form>
-
-        <a href="{{ route('products.create') }}" class="btn btn-success mb-3">新規登録</a>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">商品名</th>
-                    <th scope="col">価格</th>
-                    <th scope="col">在庫数</th>
-                    <th scope="col">メーカー</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($products as $product)
-                    <tr>
-                        <th scope="row">{{ $product->id }}</th>
-                        <td>{{ $product->name }}</td>
-                        <td>{{ $product->price }}</td>
-                        <td>{{ $product->stock }}</td>
-                        <td>{{ $product->manufacturer->name }}</td>
-                        <td>
-                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-primary">詳細</a>
-                            <form action="{{ route('products.destroy', $product->id) }}" method="post" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('本当に削除しますか？')">削除</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        </div>
     </div>
+</div>
 @endsection

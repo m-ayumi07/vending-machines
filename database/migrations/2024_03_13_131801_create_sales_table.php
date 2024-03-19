@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateSalesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -16,10 +16,14 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products');
-            $table->dateTime('sale_date');
             $table->integer('quantity');
+            $table->date('sale_date');
             $table->timestamps();
+
+            $table->foreign('product_id')
+                  ->references('id')
+                  ->on('products')
+                  ->onDelete('cascade');
         });
     }
 
@@ -32,4 +36,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('sales');
     }
-};
+}

@@ -5,52 +5,53 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Product Edit') }}</div>
+                <div class="card-header">{{ __('Edit Sale') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('products.update', $product->id) }}">
+                    <form method="POST" action="{{ route('sales.update', $sale) }}">
                         @csrf
                         @method('PUT')
 
                         <div class="form-group row">
-                            <label for="product_name" class="col-md-4 col-form-label text-md-right">{{ __('Product Name') }}</label>
+                            <label for="product_id" class="col-md-4 col-form-label text-md-right">{{ __('Product') }}</label>
 
                             <div class="col-md-6">
-                                <input id="product_name" type="text" class="form-control @error('product_name') is-invalid @enderror" name="product_name" value="{{ old('product_name', $product->product_name) }}" required autocomplete="product_name" autofocus>
-
-                                @error('product_name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="price" class="col-md-4 col-form-label text-md-right">{{ __('Price') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="price" type="number" class="form-control @error('price') is-invalid @enderror" name="price" value="{{ old('price', $product->price) }}" required autocomplete="price">
-
-                                @error('price')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="company_id" class="col-md-4 col-form-label text-md-right">{{ __('Company') }}</label>
-
-                            <div class="col-md-6">
-                                <select id="company_id" class="form-control @error('company_id') is-invalid @enderror" name="company_id" required>
-                                    @foreach ($companies as $company)
-                                        <option value="{{ $company->id }}" {{ $company->id === $product->company_id ? 'selected' : '' }}>{{ $company->company_name }}</option>
+                                <select id="product_id" class="form-control @error('product_id') is-invalid @enderror" name="product_id" required>
+                                    <option value="">{{ __('Select a product') }}</option>
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}" {{ $sale->product_id == $product->id ? 'selected' : '' }}>{{ $product->product_name }}</option>
                                     @endforeach
                                 </select>
 
-                                @error('company_id')
+                                @error('product_id')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="quantity" class="col-md-4 col-form-label text-md-right">{{ __('Quantity') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="quantity" type="number" class="form-control @error('quantity') is-invalid @enderror" name="quantity" value="{{ old('quantity', $sale->quantity) }}" required autofocus>
+
+                                @error('quantity')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="sale_date" class="col-md-4 col-form-label text-md-right">{{ __('Sale Date') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="sale_date" type="date" class="form-control @error('sale_date') is-invalid @enderror" name="sale_date" value="{{ old('sale_date', $sale->sale_date->format('Y-m-d')) }}" required>
+
+                                @error('sale_date')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
