@@ -12,20 +12,20 @@ class CreateProductsTable extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->unsignedBigInteger('company_id');
-            $table->decimal('price', 8, 2);
-            $table->integer('stock');
-            $table->text('comment')->nullable();
-            $table->string('image_path')->nullable();
-            $table->timestamps();
+{
+    Schema::create('products', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->unsignedBigInteger('company_id');
+        $table->decimal('price', 8, 2);
+        $table->integer('stock');
+        $table->text('comment')->nullable();
+        $table->string('image_path')->nullable();
+        $table->timestamps();
 
-            $table->foreign('company_id')->references('id')->on('companies');
-        });
-    }
+        $table->foreign('company_id')->references('id')->on('companies');
+    });
+}
 
     /**
      * Reverse the migrations.
