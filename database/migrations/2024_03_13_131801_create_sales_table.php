@@ -20,10 +20,14 @@ class CreateSalesTable extends Migration
             $table->date('sale_date');
             $table->timestamps();
 
+<<<<<<< HEAD
             $table->foreign('product_id')
                   ->references('id')
                   ->on('products')
                   ->onDelete('cascade');
+=======
+            $table->foreign('product_id')->references('id')->on('products');
+>>>>>>> sub
         });
     }
 
