@@ -15,8 +15,7 @@ use App\Http\Controllers\SaleController;
 |
 */
 
-<<<<<<< HEAD
-=======
+
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
@@ -24,7 +23,6 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
 Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
->>>>>>> sub
 Route::get('/', function () {
     return view('welcome');
 });
@@ -33,9 +31,3 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('sales', SaleController::class);
 });
-
-<<<<<<< HEAD
-require __DIR__.'/auth.php';
-=======
-require __DIR__.'/auth.php';
->>>>>>> sub
