@@ -17,17 +17,9 @@ class CreateSalesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity');
-            $table->date('sale_date');
             $table->timestamps();
 
-<<<<<<< HEAD
-            $table->foreign('product_id')
-                  ->references('id')
-                  ->on('products')
-                  ->onDelete('cascade');
-=======
             $table->foreign('product_id')->references('id')->on('products');
->>>>>>> sub
         });
     }
 
