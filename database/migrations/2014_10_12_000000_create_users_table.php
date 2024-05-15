@@ -1,35 +1,36 @@
 <?php
 
-namespace App\Http\Controllers;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
-class ProductController extends Controller
+return new class extends Migration
 {
-    public function index(Request $request)
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
     {
-        $query = DB::table('products')
-            ->select(
-                'products.id',
-                'products.name',
-                'products.price',
-                'products.stock',
-                'companies.name as company_name'
-            )
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('products.deleted_at', null);
-
-        if ($request->has('product_name')) {
-            $query->where('products.name', 'like', '%' . $request->input('product_name') . '%');
-        }
-
-        if ($request->has('company_id')) {
-            $query->where('products.company_id', $request->input('company_id'));
-        }
-
-        $products = $query->paginate(10);
-
-        return view('products.index', compact('products'));
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
     }
-}
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+};

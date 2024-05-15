@@ -3,104 +3,55 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Company;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // 商品一覧画面表示
     public function index()
     {
-        $products = Product::with('company')->paginate(10);
+        $products = Product::all();
         return view('products.index', compact('products'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // 商品新規登録画面表示
     public function create()
     {
-        $companies = Company::all();
-        return view('products.create', compact('companies'));
+        return view('products.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // 商品新規登録処理
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'product_name' => 'required|max:255',
-            'price' => 'required|numeric',
-            'company_id' => 'required|exists:companies,id',
-        ]);
+        // バリデーション、データ保存処理...
 
-        $product = Product::create($validatedData);
-
-        return redirect()->route('products.show', $product)->with('success', 'Product created successfully.');
+        return redirect()->route('products.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
+    // 商品詳細画面表示
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
+    // 商品編集画面表示
     public function edit(Product $product)
     {
-        $companies = Company::all();
-        return view('products.edit', compact('product', 'companies'));
+        return view('products.edit', compact('product'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
+    // 商品更新処理
     public function update(Request $request, Product $product)
     {
-        $validatedData = $request->validate([
-            'product_name' => 'required|max:255',
-            'price' => 'required|numeric',
-            'company_id' => 'required|exists:companies,id',
-        ]);
+        // バリデーション、データ更新処理...
 
-        $product->update($validatedData);
-
-        return redirect()->route('products.show', $product)->with('success', 'Product updated successfully.');
+        return redirect()->route('products.show', $product);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
+    // 商品削除処理
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('products.index');
     }
 }
