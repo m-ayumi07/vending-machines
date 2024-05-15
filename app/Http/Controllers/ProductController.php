@@ -43,7 +43,7 @@ class ProductController extends Controller
     // 商品更新処理
     public function update(Request $request, Product $product)
     {
-        // バリデーション、データ更新処理...
+    // バリデーション、データ更新処理...
 
         return redirect()->route('products.show', $product);
     }
