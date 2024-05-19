@@ -16,24 +16,27 @@ use App\Http\Controllers\SaleController;
 */
 
 
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->name('login');
+
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->name('login.store');
+
+Route::get('/register', [RegisteredUserController::class, 'create'])
+    ->name('register');
+
+Route::post('/register', [RegisteredUserController::class, 'store'])
+    ->name('register.store');
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('products', ProductController::class);
-    Route::resource('sales', SaleController::class);
+    Route::get('/', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 });
-Auth::routes();
-Route::get('/login', [App\Http\Controllers\Auth\AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [App\Http\Controllers\Auth\AuthController::class, 'login']);
-Route::post('/logout', [App\Http\Controllers\Auth\AuthController::class, 'logout'])->name('logout');
-Route::get('/register', [App\Http\Controllers\Auth\AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [App\Http\Controllers\Auth\AuthController::class, 'register']);

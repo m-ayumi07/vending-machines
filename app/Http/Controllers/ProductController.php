@@ -3,55 +3,130 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Company;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // 商品一覧画面表示
+    /**
+     * Display a listing of the products.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with('company')->paginate(10);
         return view('products.index', compact('products'));
     }
 
-    // 商品新規登録画面表示
+    /**
+     * Show the form for creating a new product.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
     {
-        return view('products.create');
+        $companies = Company::all();
+        return view('products.create', compact('companies'));
     }
 
-    // 商品新規登録処理
+    /**
+     * Store a newly created product in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        // バリデーション、データ保存処理...
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'company_id' => 'required|exists:companies,id',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'comment' => 'nullable',
+            'image' => 'nullable|image',
+        ]);
 
-        return redirect()->route('products.index');
+        $product = new Product($validatedData);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/images', $imageName);
+            $product->image = 'images/' . $imageName;
+        }
+
+        $product->save();
+
+        return redirect()->route('products.index')
+            ->with('success', 'Product created successfully.');
     }
 
-    // 商品詳細画面表示
+    /**
+     * Display the specified product.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\Response
+     */
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
     }
 
-    // 商品編集画面表示
+    /**
+     * Show the form for editing the specified product.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\Response
+     */
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $companies = Company::all();
+        return view('products.edit', compact('product', 'companies'));
     }
 
-    // 商品更新処理
+    /**
+     * Update the specified product in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Product $product)
     {
-    // バリデーション、データ更新処理...
+        $validatedData = $request->validate([
+            'name' => 'required|max:255',
+            'company_id' => 'required|exists:companies,id',
+            'price' => 'required|numeric',
+            'stock' => 'required|numeric',
+            'comment' => 'nullable',
+            'image' => 'nullable|image',
+        ]);
 
-        return redirect()->route('products.show', $product);
+        $product->update($validatedData);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/images', $imageName);
+            $product->image = 'images/' . $imageName;
+            $product->save();
+        }
+
+        return redirect()->route('products.show', $product)
+            ->with('success', 'Product updated successfully.');
     }
 
-    // 商品削除処理
+    /**
+     * Remove the specified product from storage.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\Response
+     */
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')
+            ->with('success', 'Product deleted successfully.');
     }
 }
