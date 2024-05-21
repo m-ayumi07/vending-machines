@@ -18,11 +18,11 @@
                     <table class="table table-bordered mb-0">
                         <thead>
                             <tr>
-                                <th>@sortablelink('id', __('ID'))</th>
-                                <th>@sortablelink('product_name', __('Product Name'))</th>
-                                <th>@sortablelink('price', __('Price'))</th>
-                                <th>@sortablelink('company.company_name', __('Company'))</th>
-                                <th>{{ __('Actions') }}</th>
+                                <th>id</th>
+                                <th>商品画像</th>
+                                <th>商品名</th>
+                                <th>在庫数</th>
+                                <th>メーカー名</th>
                             </tr>
                         </thead>
                         <tbody>

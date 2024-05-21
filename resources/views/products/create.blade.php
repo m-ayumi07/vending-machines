@@ -16,11 +16,11 @@
             </div>
 
             <div class="form-group">
-                <label for="manufacturer">メーカー</label>
-                <select class="form-control @error('manufacturer_id') is-invalid @enderror" id="manufacturer" name="manufacturer_id">
+                <label for="company_id">メーカー</label>
+                <select class="form-control @error('company_id') is-invalid @enderror" id="company" name="company_id">
                     <option value="">選択してください</option>
-                    @foreach ($manufacturers as $manufacturer)
-                        <option value="{{ $manufacturer->id }}" @if (old('manufacturer_id') == $manufacturer->id) selected @endif>{{ $manufacturer->name }}</option>
+                    @foreach ($company as $company)
+                        <option value="{{ $company->id }}" @if (old('campany_id') == $campany->id) selected @endif>{{ $manufacturer->name }}</option>
                     @endforeach
                 </select>
                 @error('manufacturer_id')

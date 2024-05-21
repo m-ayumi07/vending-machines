@@ -9,56 +9,46 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // ユーザーログイン画面表示
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    // ユーザーログイン処理
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $credentials = $request->only('password', 'address');
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
             return redirect()->intended('/');
         }
 
         return back()->withErrors([
-            'email' => 'メールアドレスまたはパスワードが正しくありません。',
+            'password' => 'パスワードが正しくありません。',
         ]);
     }
 
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
-    }
-
+    // ユーザー新規登録画面表示
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
+    // ユーザー新規登録処理
     public function register(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|confirmed',
+            'address' => 'required|unique:users',
         ]);
 
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => bcrypt($validatedData['password']),
+        $user = new User([
+            'password' => Hash::make($validatedData['password']),
+            'address' => $validatedData['address'],
         ]);
+
+        $user->save();
 
         Auth::login($user);
 
