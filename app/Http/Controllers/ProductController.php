@@ -8,125 +8,102 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the products.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function __construct()
     {
-        $products = Product::with('company')->paginate(10);
-        return view('products.index', compact('products'));
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
-    /**
-     * Show the form for creating a new product.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function index(Request $request)
+    {
+        $products = Product::with('maker')
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->when($request->maker, function ($query, $makerId) {
+                $query->where('maker_id', $makerId);
+            })
+            ->latest()
+            ->paginate(10);
+
+        $makers = Maker::pluck('name', 'id');
+
+        return view('products.index', compact('products', 'makers'));
+    }
+
     public function create()
     {
-        $companies = Company::all();
-        return view('products.create', compact('companies'));
+        $makers = Maker::pluck('name', 'id');
+        return view('products.create', compact('makers'));
     }
 
-    /**
-     * Store a newly created product in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric',
+            'maker_id' => 'required|exists:makers,id',
+            'price' => 'required|integer|min:0',
+            'stock' => 'required|integer|min:0',
             'comment' => 'nullable',
-            'image' => 'nullable|image',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        $product = new Product($validatedData);
+        $product = Product::create($validatedData);
 
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/images', $imageName);
-            $product->image = 'images/' . $imageName;
+            $path = $request->file('image')->store('products', 'public');
+            $product->image = $path;
+            $product->save();
         }
 
-        $product->save();
-
         return redirect()->route('products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success', '商品を登録しました。');
     }
 
-    /**
-     * Display the specified product.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
     }
 
-    /**
-     * Show the form for editing the specified product.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Product $product)
     {
-        $companies = Company::all();
-        return view('products.edit', compact('product', 'companies'));
+        $makers = Maker::pluck('name', 'id');
+        return view('products.edit', compact('product', 'makers'));
     }
 
-    /**
-     * Update the specified product in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric',
+            'maker_id' => 'required|exists:makers,id',
+            'price' => 'required|integer|min:0',
+            'stock' => 'required|integer|min:0',
             'comment' => 'nullable',
-            'image' => 'nullable|image',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         $product->update($validatedData);
 
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/images', $imageName);
-            $product->image = 'images/' . $imageName;
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $path = $request->file('image')->store('products', 'public');
+            $product->image = $path;
             $product->save();
         }
 
-        return redirect()->route('products.show', $product)
-            ->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')
+            ->with('success', '商品を更新しました。');
     }
 
-    /**
-     * Remove the specified product from storage.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
         $product->delete();
+
         return redirect()->route('products.index')
-            ->with('success', 'Product deleted successfully.');
+            ->with('success', '商品を削除しました。');
     }
 }

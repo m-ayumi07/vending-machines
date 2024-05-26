@@ -20,7 +20,7 @@
                 <select class="form-control @error('company_id') is-invalid @enderror" id="company" name="company_id">
                     <option value="">選択してください</option>
                     @foreach ($company as $company)
-                        <option value="{{ $company->id }}" @if (old('campany_id') == $campany->id) selected @endif>{{ $manufacturer->name }}</option>
+                        <option value="{{ $company->id }}" @if (old('campany_id') == $campany->id) selected @endif>{{ $company->name }}</option>
                     @endforeach
                 </select>
                 @error('manufacturer_id')
