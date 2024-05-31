@@ -4,64 +4,75 @@
     <div class="container">
         <h1>商品登録</h1>
 
-        <form action="{{ route('products.store') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group">
-                <label for="name">商品名</label>
-                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}">
-                @error('name')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                <label for="company_id">メーカー</label>
+                <select name="company_id" id="company_id" class="form-control @error('company_id') is-invalid @enderror" required>
+                    <option value="">選択してください</option>
+                    @foreach ($companies as $company)
+                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                    @endforeach
+                </select>
+                @error('company_id')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
-                <label for="company_id">メーカー</label>
-                <select class="form-control @error('company_id') is-invalid @enderror" id="company" name="company_id">
-                    <option value="">選択してください</option>
-                    @foreach ($company as $company)
-                        <option value="{{ $company->id }}" @if (old('campany_id') == $campany->id) selected @endif>{{ $company->name }}</option>
-                    @endforeach
-                </select>
-                @error('manufacturer_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                <label for="product_name">商品名</label>
+                <input type="text" name="product_name" id="product_name" class="form-control @error('product_name') is-invalid @enderror" value="{{ old('product_name') }}" required>
+                @error('product_name')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
                 <label for="price">価格</label>
-                <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}">
+                <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" required>
                 @error('price')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
                 <label for="stock">在庫数</label>
-                <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock') }}">
+                <input type="number" name="stock" id="stock" class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock') }}" required>
                 @error('stock')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
                 <label for="comment">コメント</label>
-                <textarea class="form-control @error('comment') is-invalid @enderror" id="comment" name="comment">{{ old('comment') }}</textarea>
+                <textarea name="comment" id="comment" class="form-control @error('comment') is-invalid @enderror">{{ old('comment') }}</textarea>
                 @error('comment')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <div class="form-group">
-                <label for="image">商品画像</label>
-                <input type="file" class="form-control-file @error('image') is-invalid @enderror" id="image" name="image">
-                @error('image')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                <label for="img_path">商品画像</label>
+                <input type="file" name="img_path" id="img_path" class="form-control-file @error('img_path') is-invalid @enderror">
+                @error('img_path')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                 @enderror
             </div>
 
             <button type="submit" class="btn btn-primary">登録</button>
-            <a href="{{ route('products.index') }}" class="btn btn-secondary">戻る</a>
         </form>
     </div>
 @endsection

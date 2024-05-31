@@ -17,6 +17,7 @@ use App\Http\Controllers\SaleController;
 
 Auth::routes();
 
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');

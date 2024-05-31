@@ -8,54 +8,51 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth')->except(['index', 'show']);
-    }
-
     public function index(Request $request)
     {
-        $products = Product::with('maker')
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->when($request->maker, function ($query, $makerId) {
-                $query->where('maker_id', $makerId);
-            })
-            ->latest()
-            ->paginate(10);
+        $query = Product::query();
 
-        $makers = Maker::pluck('name', 'id');
+        if ($request->has('search')) {
+            $query->where('product_name', 'like', '%' . $request->input('search') . '%');
+        }
 
-        return view('products.index', compact('products', 'makers'));
+        if ($request->has('company')) {
+            $query->where('company_id', $request->input('company'));
+        }
+
+        $products = $query->paginate(10);
+        $companies = Company::pluck('name', 'id');
+
+        return view('products.index', compact('products', 'companies'));
     }
 
     public function create()
     {
-        $makers = Maker::pluck('name', 'id');
-        return view('products.create', compact('makers'));
+        $companies = Company::pluck('name', 'id');
+        return view('products.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'maker_id' => 'required|exists:makers,id',
+            'product_name' => 'required|max:255',
+            'company_id' => 'required|exists:companies,id',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
-            'comment' => 'nullable',
-            'image' => 'nullable|image|max:2048',
+            'comment' => 'nullable|string',
+            'img_path' => 'nullable|image|max:2048',
         ]);
 
         $product = Product::create($validatedData);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $product->image = $path;
+        if ($request->hasFile('img_path')) {
+            $image = $request->file('img_path');
+            $path = $image->store('public/products');
+            $product->img_path = $path;
             $product->save();
         }
 
-        return redirect()->route('products.index')
+        return redirect()->route('products.show', $product)
             ->with('success', '商品を登録しました。');
     }
 
@@ -66,40 +63,41 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $makers = Maker::pluck('name', 'id');
-        return view('products.edit', compact('product', 'makers'));
+        $companies = Company::pluck('name', 'id');
+        return view('products.edit', compact('product', 'companies'));
     }
 
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
-            'name' => 'required|max:255',
-            'maker_id' => 'required|exists:makers,id',
+            'product_name' => 'required|max:255',
+            'company_id' => 'required|exists:companies,id',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
-            'comment' => 'nullable',
-            'image' => 'nullable|image|max:2048',
+            'comment' => 'nullable|string',
+            'img_path' => 'nullable|image|max:2048',
         ]);
 
         $product->update($validatedData);
 
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+        if ($request->hasFile('img_path')) {
+            if ($product->img_path) {
+                Storage::delete($product->img_path);
             }
-            $path = $request->file('image')->store('products', 'public');
-            $product->image = $path;
+            $image = $request->file('img_path');
+            $path = $image->store('public/products');
+            $product->img_path = $path;
             $product->save();
         }
 
-        return redirect()->route('products.index')
+        return redirect()->route('products.show', $product)
             ->with('success', '商品を更新しました。');
     }
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        if ($product->img_path) {
+            Storage::delete($product->img_path);
         }
         $product->delete();
 
