@@ -21,7 +21,7 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(10);
-        $companies = Company::pluck('name', 'id');
+        $companies = Company::all();
 
         return view('products.index', compact('products', 'companies'));
     }
