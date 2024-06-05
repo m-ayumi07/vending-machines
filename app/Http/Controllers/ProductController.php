@@ -44,13 +44,20 @@ class ProductController extends Controller
             'img_path' => 'nullable|image|max:2048',
         ]);
 
-        $product = new Product($validatedData);
+        $product = new Product();
+        $product->product_name = $validatedData['product_name'];
+        $product->company_id = $validatedData['company_id'];
+        $product->price = $validatedData['price'];
+        $product->stock = $validatedData['stock'];
+        $product->comment = $validatedData['comment'];
 
         if ($request->hasFile('img_path')) {
             $image = $request->file('img_path');
             $path = $image->store('public/products');
             $product->img_path = $path;
         }
+
+        $product->save();
 
         return redirect()->route('products.index')
             ->with('success', '商品を登録しました。');
@@ -63,7 +70,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $companies = Company::pluck('name', 'id');
+        $companies = Company::all();
         return view('products.edit', compact('product', 'companies'));
     }
 

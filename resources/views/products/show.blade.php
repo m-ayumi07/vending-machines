@@ -25,6 +25,9 @@
         </div>
     </div>
 
-    <a href="{{ route('products.index') }}" class="btn btn-secondary mt-3">戻る</a>
+    <div class="mt-3">
+        <a href="{{ route('products.edit', $product) }}" class="btn btn-primary">編集</a>
+        <a href="{{ route('products.index') }}" class="btn btn-secondary">戻る</a>
+    </div>
 </div>
 @endsection

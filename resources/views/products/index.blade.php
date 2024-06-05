@@ -63,11 +63,10 @@
                         <td>
                             <a href="{{ route('products.show', $product) }}" class="btn btn-info btn-sm">詳細</a>
                             @auth
-                                <a href="{{ route('products.edit', $product) }}" class="btn btn-primary btn-sm">編集</a>
-                                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display: inline">
+                                <form action="{{ route('products.destroy', $product) }}" method="POST" style="display: inline" onsubmit="return confirm('本当に削除しますか？')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('本当に削除しますか？')">削除</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">削除</button>
                                 </form>
                             @endauth
                         </td>
