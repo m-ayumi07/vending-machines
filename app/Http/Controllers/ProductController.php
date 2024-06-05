@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -28,7 +29,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        $companies = Company::pluck('name', 'id');
+        $companies = Company::all();
         return view('products.create', compact('companies'));
     }
 
@@ -43,16 +44,15 @@ class ProductController extends Controller
             'img_path' => 'nullable|image|max:2048',
         ]);
 
-        $product = Product::create($validatedData);
+        $product = new Product($validatedData);
 
         if ($request->hasFile('img_path')) {
             $image = $request->file('img_path');
             $path = $image->store('public/products');
             $product->img_path = $path;
-            $product->save();
         }
 
-        return redirect()->route('products.show', $product)
+        return redirect()->route('products.index')
             ->with('success', '商品を登録しました。');
     }
 
@@ -90,7 +90,7 @@ class ProductController extends Controller
             $product->save();
         }
 
-        return redirect()->route('products.show', $product)
+        return redirect()->route('products.index')
             ->with('success', '商品を更新しました。');
     }
 
