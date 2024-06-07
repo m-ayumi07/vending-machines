@@ -13,11 +13,12 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <select name="company_id" class="form-control">
+                        <select name="company" class="form-control">
                             <option value="">メーカーを選択</option>
-                            @foreach ($companies as $company)
-                                <option value="{{ $company->id }}" {{ request('company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                            @endforeach
+                            <option value="Coca-Cola" {{ request('company') == 'Coca-Cola' ? 'selected' : '' }}>Coca-Cola</option>
+                            <option value="サントリー" {{ request('company') == 'サントリー' ? 'selected' : '' }}>サントリー</option>
+                            <option value="キリン" {{ request('company') == 'キリン' ? 'selected' : '' }}>キリン</option>
+                            <option value="その他" {{ request('company') == 'その他' ? 'selected' : '' }}>その他</option>
                         </select>
                     </div>
                 </div>
@@ -59,7 +60,7 @@
                         <td>{{ $product->product_name }}</td>
                         <td>{{ number_format($product->price) }}円</td>
                         <td>{{ $product->stock }}</td>
-                        <td>{{ $product->company->name }}</td>
+                        <td>{{ $product->company->company_name }}</td>
                         <td>
                             <a href="{{ route('products.show', $product) }}" class="btn btn-info btn-sm">詳細</a>
                             @auth

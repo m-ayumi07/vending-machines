@@ -11,14 +11,16 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query();
+        $query = Product::with('company');
 
         if ($request->has('search')) {
             $query->where('product_name', 'like', '%' . $request->input('search') . '%');
         }
 
         if ($request->has('company')) {
-            $query->where('company_id', $request->input('company'));
+            $query->whereHas('company', function ($q) use ($request) {
+                $q->where('company_name', 'like', '%' . $request->input('company') . '%');
+            });
         }
 
         $products = $query->paginate(10);
@@ -35,36 +37,41 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'product_name' => 'required|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|integer|min:0',
-            'stock' => 'required|integer|min:0',
-            'comment' => 'nullable|string',
-            'img_path' => 'nullable|image|max:2048',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'product_name' => 'required|max:255',
+                'company_id' => 'required|exists:companies,id',
+                'price' => 'required|integer|min:0',
+                'stock' => 'required|integer|min:0',
+                'comment' => 'nullable|string',
+                'img_path' => 'nullable|image|max:2048',
+            ]);
 
-        $product = new Product();
-        $product->product_name = $validatedData['product_name'];
-        $product->company_id = $validatedData['company_id'];
-        $product->price = $validatedData['price'];
-        $product->stock = $validatedData['stock'];
-        $product->comment = $validatedData['comment'];
+            $product = new Product();
+            $product->product_name = $validatedData['product_name'];
+            $product->company_id = $validatedData['company_id'];
+            $product->price = $validatedData['price'];
+            $product->stock = $validatedData['stock'];
+            $product->comment = $validatedData['comment'];
 
-        if ($request->hasFile('img_path')) {
-            $image = $request->file('img_path');
-            $path = $image->store('public/products');
-            $product->img_path = $path;
+            if ($request->hasFile('img_path')) {
+                $image = $request->file('img_path');
+                $path = $image->store('public/products');
+                $product->img_path = $path;
+            }
+
+            $product->save();
+
+            return redirect()->route('products.index')
+                ->with('success', '商品を登録しました。');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
         }
-
-        $product->save();
-
-        return redirect()->route('products.index')
-            ->with('success', '商品を登録しました。');
     }
 
     public function show(Product $product)
     {
+        $product->load('company');
         return view('products.show', compact('product'));
     }
 
@@ -76,39 +83,47 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $validatedData = $request->validate([
-            'product_name' => 'required|max:255',
-            'company_id' => 'required|exists:companies,id',
-            'price' => 'required|integer|min:0',
-            'stock' => 'required|integer|min:0',
-            'comment' => 'nullable|string',
-            'img_path' => 'nullable|image|max:2048',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'product_name' => 'required|max:255',
+                'company_id' => 'required|exists:companies,id',
+                'price' => 'required|integer|min:0',
+                'stock' => 'required|integer|min:0',
+                'comment' => 'nullable|string',
+                'img_path' => 'nullable|image|max:2048',
+            ]);
 
-        $product->update($validatedData);
+            $product->update($validatedData);
 
-        if ($request->hasFile('img_path')) {
-            if ($product->img_path) {
-                Storage::delete($product->img_path);
+            if ($request->hasFile('img_path')) {
+                if ($product->img_path) {
+                    Storage::delete($product->img_path);
+                }
+                $image = $request->file('img_path');
+                $path = $image->store('public/products');
+                $product->img_path = $path;
+                $product->save();
             }
-            $image = $request->file('img_path');
-            $path = $image->store('public/products');
-            $product->img_path = $path;
-            $product->save();
-        }
 
-        return redirect()->route('products.index')
-            ->with('success', '商品を更新しました。');
+            return redirect()->route('products.index')
+                ->with('success', '商品を更新しました。');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 
     public function destroy(Product $product)
     {
-        if ($product->img_path) {
-            Storage::delete($product->img_path);
-        }
-        $product->delete();
+        try {
+            if ($product->img_path) {
+                Storage::delete($product->img_path);
+            }
+            $product->delete();
 
-        return redirect()->route('products.index')
-            ->with('success', '商品を削除しました。');
+            return redirect()->route('products.index')
+                ->with('success', '商品を削除しました。');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
     }
 }

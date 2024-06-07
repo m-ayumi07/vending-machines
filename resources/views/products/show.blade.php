@@ -16,7 +16,7 @@
                 </div>
                 <div class="col-md-6">
                     <h2>{{ $product->product_name }}</h2>
-                    <p><strong>メーカー:</strong> {{ $product->company->name }}</p>
+                    <p><strong>メーカー:</strong> {{ $product->company->company_name }}</p>
                     <p><strong>価格:</strong> {{ number_format($product->price) }}円</p>
                     <p><strong>在庫数:</strong> {{ $product->stock }}</p>
                     <p><strong>コメント:</strong> {{ $product->comment }}</p>
