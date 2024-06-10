@@ -13,13 +13,13 @@ class ProductController extends Controller
     {
         $query = Product::with('company');
 
-        if ($request->has('search')) {
+        if ($request->input('search')) {
             $query->where('product_name', 'like', '%' . $request->input('search') . '%');
         }
 
-        if ($request->has('company')) {
+        if ($request->input('company')) {
             $query->whereHas('company', function ($q) use ($request) {
-                $q->where('company_name', 'like', '%' . $request->input('company') . '%');
+                $q->where('id', $request->input('company'));
             });
         }
 

@@ -12,10 +12,9 @@
             <label for="company_id">メーカー</label>
             <select name="company_id" id="company_id" class="form-control @error('company_id') is-invalid @enderror" required>
                 <option value="">選択してください</option>
-                <option value="1" {{ $product->company_id == 1 ? 'selected' : '' }}>Coca-Cola</option>
-                <option value="2" {{ $product->company_id == 2 ? 'selected' : '' }}>サントリー</option>
-                <option value="3" {{ $product->company_id == 3 ? 'selected' : '' }}>キリン</option>
-                <option value="4" {{ $product->company_id == 4 ? 'selected' : '' }}>その他</option>
+                @foreach ($companies as $company)
+                    <option value="{{ $company->id }}" {{ $product->company_id == $company->id ? 'selected' : '' }}>{{ $company->company_name }}</option>
+                @endforeach
             </select>
             @error('company_id')
                 <span class="invalid-feedback" role="alert">

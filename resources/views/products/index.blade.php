@@ -15,10 +15,9 @@
                     <div class="form-group">
                         <select name="company" class="form-control">
                             <option value="">メーカーを選択</option>
-                            <option value="Coca-Cola" {{ request('company') == 'Coca-Cola' ? 'selected' : '' }}>Coca-Cola</option>
-                            <option value="サントリー" {{ request('company') == 'サントリー' ? 'selected' : '' }}>サントリー</option>
-                            <option value="キリン" {{ request('company') == 'キリン' ? 'selected' : '' }}>キリン</option>
-                            <option value="その他" {{ request('company') == 'その他' ? 'selected' : '' }}>その他</option>
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->id }}" {{ request('company') == $company->id ? 'selected' : '' }}>{{ $company->company_name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
