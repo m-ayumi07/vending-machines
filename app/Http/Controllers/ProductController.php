@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Company;
+use App\Http\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,17 +36,10 @@ class ProductController extends Controller
         return view('products.create', compact('companies'));
     }
 
-    public function store(Request $request)
+    public function store(ArticleRequest $request)
     {
         try {
-            $validatedData = $request->validate([
-                'product_name' => 'required|max:255',
-                'company_id' => 'required|exists:companies,id',
-                'price' => 'required|integer|min:0',
-                'stock' => 'required|integer|min:0',
-                'comment' => 'nullable|string',
-                'img_path' => 'nullable|image|max:2048',
-            ]);
+            $validatedData = $request->validated();
 
             $product = new Product();
             $product->product_name = $validatedData['product_name'];
@@ -81,17 +75,10 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'companies'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ArticleRequest $request, Product $product)
     {
         try {
-            $validatedData = $request->validate([
-                'product_name' => 'required|max:255',
-                'company_id' => 'required|exists:companies,id',
-                'price' => 'required|integer|min:0',
-                'stock' => 'required|integer|min:0',
-                'comment' => 'nullable|string',
-                'img_path' => 'nullable|image|max:2048',
-            ]);
+            $validatedData = $request->validated();
 
             $product->update($validatedData);
 
