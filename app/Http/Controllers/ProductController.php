@@ -14,18 +14,51 @@ class ProductController extends Controller
     {
         $query = Product::with('company');
 
-        if ($request->input('search')) {
+        if ($request->filled('search')) {
             $query->where('product_name', 'like', '%' . $request->input('search') . '%');
         }
 
-        if ($request->input('company')) {
-            $query->whereHas('company', function ($q) use ($request) {
-                $q->where('id', $request->input('company'));
-            });
+        if ($request->filled('company')) {
+            $query->where('company_id', $request->input('company'));
+        }
+
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', $request->input('price_min'));
+        }
+
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', $request->input('price_max'));
+        }
+
+        if ($request->filled('stock_min')) {
+            $query->where('stock', '>=', $request->input('stock_min'));
+        }
+
+        if ($request->filled('stock_max')) {
+            $query->where('stock', '<=', $request->input('stock_max'));
+        }
+
+        if ($request->has('sort') && $request->has('order')) {
+            $sort = $request->input('sort');
+            $order = $request->input('order');
+
+            if ($sort === 'company_id') {
+                $query->join('companies', 'products.company_id', '=', 'companies.id')
+                      ->orderBy('companies.company_name', $order)
+                      ->select('products.*');
+            } else {
+                $query->orderBy($sort, $order);
+            }
+        } else {
+            $query->orderBy('id', 'desc');
         }
 
         $products = $query->paginate(10);
         $companies = Company::all();
+
+        if ($request->ajax()) {
+            return view('products.index', compact('products', 'companies'));
+        }
 
         return view('products.index', compact('products', 'companies'));
     }
@@ -51,7 +84,7 @@ class ProductController extends Controller
             if ($request->hasFile('img_path')) {
                 $image = $request->file('img_path');
                 $path = $image->store('public/products');
-                $product->img_path = $path;
+                $product->img_path = str_replace('public/', '', $path);
             }
 
             $product->save();
@@ -84,11 +117,11 @@ class ProductController extends Controller
 
             if ($request->hasFile('img_path')) {
                 if ($product->img_path) {
-                    Storage::delete($product->img_path);
+                    Storage::delete('public/' . $product->img_path);
                 }
                 $image = $request->file('img_path');
                 $path = $image->store('public/products');
-                $product->img_path = $path;
+                $product->img_path = str_replace('public/', '', $path);
                 $product->save();
             }
 
@@ -103,14 +136,21 @@ class ProductController extends Controller
     {
         try {
             if ($product->img_path) {
-                Storage::delete($product->img_path);
+                Storage::delete('public/' . $product->img_path);
             }
             $product->delete();
+
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'message' => '商品を削除しました。']);
+            }
 
             return redirect()->route('products.index')
                 ->with('success', '商品を削除しました。');
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors($e->getMessage());
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'エラーが発生しました。'], 500);
+            }
+            return redirect()->back()->withErrors('削除中にエラーが発生しました。');
         }
     }
 }

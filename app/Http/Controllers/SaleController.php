@@ -92,4 +92,34 @@ class SaleController extends Controller
         $sale->delete();
         return redirect()->route('sales.index')->with('success', 'Sale deleted successfully.');
     }
+
+    /**
+     * API endpoint for creating a new sale.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function apiStore(Request $request)
+    {
+        $validatedData = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|numeric',
+        ]);
+
+        $product = Product::findOrFail($validatedData['product_id']);
+
+        if ($product->stock < $validatedData['quantity']) {
+            return response()->json(['error' => 'Insufficient stock.'], 400);
+        }
+
+        $sale = Sale::create([
+            'product_id' => $validatedData['product_id'],
+            'quantity' => $validatedData['quantity'],
+            'sale_date' => now(),
+        ]);
+
+        $product->decrement('stock', $validatedData['quantity']);
+
+        return response()->json(['message' => 'Sale created successfully.'], 201);
+    }
 }
