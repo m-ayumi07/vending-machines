@@ -13,7 +13,8 @@ $(document).ready(function() {
             type: 'GET',
             data: data,
             success: function(response) {
-                $('#product-list').html(response);
+                var result = $(response).find('#product-list') 
+                $('#product-list').html(result);
                 history.pushState(null, '', url + '?' + data);
             },
             error: function(xhr) {
@@ -41,7 +42,8 @@ $(document).ready(function() {
             url: newUrl,
             type: 'GET',
             success: function(response) {
-                $('#product-list').html(response);
+                var result = $(response).find('#product-list') 
+                $('#product-list').html(result);
                 history.pushState(null, '', newUrl);
             },
             error: function(xhr) {
