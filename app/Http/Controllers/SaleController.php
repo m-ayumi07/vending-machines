@@ -72,7 +72,8 @@ class SaleController extends Controller
         $sale_model = new Sale();
 
         $id = $request->input('product_id');
-        $product = $product_model->getProductById($id);
+        $product = product::find($id);
+
 
         // 商品なし
         if (!$product) {
