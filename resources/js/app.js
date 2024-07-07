@@ -2,9 +2,12 @@ import './bootstrap';
 import '@fortawesome/fontawesome-free/css/all.css';
 
 $(document).ready(function() {
+    console.log('jQuery is loaded and ready');
+
     // 検索フォームの送信
     $('#search-form').on('submit', function(e) {
         e.preventDefault();
+        console.log('Search form submitted');
         const url = $(this).attr('action');
         const data = $(this).serialize();
 
@@ -13,7 +16,8 @@ $(document).ready(function() {
             type: 'GET',
             data: data,
             success: function(response) {
-                var result = $(response).find('#product-list') 
+                console.log('Search successful');
+                var result = $(response).find('#product-list');
                 $('#product-list').html(result);
                 history.pushState(null, '', url + '?' + data);
             },
@@ -26,6 +30,7 @@ $(document).ready(function() {
     // ソート機能
     $(document).on('click', '.sort-link', function(e) {
         e.preventDefault();
+        console.log('Sort link clicked');
         const column = $(this).data('column');
         const currentSort = getUrlParameter('sort');
         const currentOrder = getUrlParameter('order');
@@ -42,7 +47,8 @@ $(document).ready(function() {
             url: newUrl,
             type: 'GET',
             success: function(response) {
-                var result = $(response).find('#product-list') 
+                console.log('Sort successful');
+                var result = $(response).find('#product-list');
                 $('#product-list').html(result);
                 history.pushState(null, '', newUrl);
             },
@@ -55,6 +61,7 @@ $(document).ready(function() {
     // 削除機能
     $(document).on('click', '.delete-btn', function() {
         const id = $(this).data('id');
+        console.log('Delete button clicked for id:', id);
         const confirmDelete = confirm('本当に削除しますか?');
 
         if (confirmDelete) {
@@ -65,6 +72,7 @@ $(document).ready(function() {
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
+                    console.log('Delete successful');
                     if (response.success) {
                         $(`.delete-btn[data-id="${id}"]`).closest('tr').remove();
                         alert(response.message);
@@ -73,8 +81,8 @@ $(document).ready(function() {
                     }
                 },
                 error: function(xhr) {
+                    console.log('Error:', xhr);
                     alert('エラーが発生しました。');
-                    console.log(xhr.responseText);
                 }
             });
         }

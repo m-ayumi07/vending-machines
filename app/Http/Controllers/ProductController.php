@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Http\Requests\ArticleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -57,7 +58,7 @@ class ProductController extends Controller
         $companies = Company::all();
 
         if ($request->ajax()) {
-            return view('products.index', compact('products', 'companies'));
+            return view('products.index', compact('products', 'companies'))->render();
         }
 
         return view('products.index', compact('products', 'companies'));
@@ -83,11 +84,18 @@ class ProductController extends Controller
 
             if ($request->hasFile('img_path')) {
                 $image = $request->file('img_path');
-                $path = $image->store('public/products');
-                $product->img_path = str_replace('public/', '', $path);
+                $path = $image->store('products', 'public');
+                $product->img_path = $path;
             }
 
             $product->save();
+
+            Log::info('Image path: ' . $product->img_path);
+            if (Storage::disk('public')->exists($product->img_path)) {
+                Log::info('File exists: ' . $product->img_path);
+            } else {
+                Log::warning('File does not exist: ' . $product->img_path);
+            }
 
             return redirect()->route('products.index')
                 ->with('success', '商品を登録しました。');
@@ -117,12 +125,19 @@ class ProductController extends Controller
 
             if ($request->hasFile('img_path')) {
                 if ($product->img_path) {
-                    Storage::delete('public/' . $product->img_path);
+                    Storage::disk('public')->delete($product->img_path);
                 }
                 $image = $request->file('img_path');
-                $path = $image->store('public/products');
-                $product->img_path = str_replace('public/', '', $path);
+                $path = $image->store('products', 'public');
+                $product->img_path = $path;
                 $product->save();
+            }
+
+            Log::info('Image path: ' . $product->img_path);
+            if (Storage::disk('public')->exists($product->img_path)) {
+                Log::info('File exists: ' . $product->img_path);
+            } else {
+                Log::warning('File does not exist: ' . $product->img_path);
             }
 
             return redirect()->route('products.index')
@@ -136,7 +151,7 @@ class ProductController extends Controller
     {
         try {
             if ($product->img_path) {
-                Storage::delete('public/' . $product->img_path);
+                Storage::disk('public')->delete($product->img_path);
             }
             $product->delete();
 
