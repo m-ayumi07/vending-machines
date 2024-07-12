@@ -15,4 +15,11 @@ class Sale extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public static function createSale($productId)
+    {
+        return self::create([
+            'product_id' => $productId
+        ]);
+    }
 }

@@ -59,34 +59,35 @@ $(document).ready(function() {
     });
 
     // 削除機能
-    $(document).on('click', '.delete-btn', function() {
-        const id = $(this).data('id');
-        console.log('Delete button clicked for id:', id);
-        const confirmDelete = confirm('本当に削除しますか?');
+        $(document).on('click', '.delete-btn', function() {
+            const id = $(this).data('id');
+            console.log('Delete button clicked for id:', id);
+            const confirmDelete = confirm('本当に削除しますか?');
 
-        if (confirmDelete) {
-            $.ajax({
-                url: `/products/${id}`,
-                type: 'DELETE',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    console.log('Delete successful');
-                    if (response.success) {
-                        $(`.delete-btn[data-id="${id}"]`).closest('tr').remove();
-                        alert(response.message);
-                    } else {
-                        alert('削除に失敗しました。');
+            if (confirmDelete) {
+                $.ajax({
+                    url: `/products/${id}`,
+                    type: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        console.log('Delete successful');
+                        if (response.success) {
+                            $(`.delete-btn[data-id="${id}"]`).closest('tr').remove();
+                            alert(response.message);
+                        } else {
+                            alert('削除に失敗しました。');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log('Error:', xhr);
+                        alert('エラーが発生しました。');
                     }
-                },
-                error: function(xhr) {
-                    console.log('Error:', xhr);
-                    alert('エラーが発生しました。');
-                }
-            });
-        }
-    });
+                });
+            }
+        });
 
     // URLパラメータを取得する関数
     function getUrlParameter(name) {

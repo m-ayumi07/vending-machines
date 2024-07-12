@@ -11,30 +11,26 @@ class SaleController extends Controller
 {
     public function buy(Request $request)
     {
-        $product_model = new Product();
-        $sale_model = new Sale();
-
         $id = $request->input('product_id');
-        $product = product::find($id);
-
+        $product = Product::find($id);
 
         if (!$product) {
-            return response()->json('商品がありません');
+            return response()->json('商品がありません', 404);
         }
 
         if ($product->stock <= 0) {
-            return response()->json('在庫がありません');
+            return response()->json('在庫がありません', 400);
         }
 
         try {
             DB::beginTransaction();
-            $buy = $sale_model->decStock($id);
-            $sale_model->registSale($id);
+            $product->decrementStock();
+            Sale::createSale($product->id);
             DB::commit();
 
             return response()->json([
                 'message' => '購入成功',
-                'product' => $buy
+                'product' => $product
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
